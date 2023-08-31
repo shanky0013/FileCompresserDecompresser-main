@@ -1,0 +1,108 @@
+import heapq
+import os
+class BinaryTree:
+def __init__(self,val,frequency):
+self.val=val
+self.frequency=frequency
+self.right=None
+self.left=None
+def __lt__(self,temp):
+return self.frequency<temp.frequency
+def __eq__(self,temp):
+return self.frequency==temp.frequency
+class HuffmanCode:
+def __init__(self,path):
+self.path=path# file path for upload and download
+self.__arr=[] # container for heap
+self.__binary={} # mapping between text and encodings
+def __getTextFrequency(self,text):
+freqDict={}
+for ch in text:
+if ch not in freqDict:
+freqDict[ch]=0
+freqDict[ch]+=1
+return freqDict
+def __buildHeap(self,freq):
+for key in freq:
+node=BinaryTree(key,freq[key])
+heapq.heappush(self.__arr,node)
+def __buildBinaryTree(self):
+while len(self.__arr)>1:
+node1=heapq.heappop(self.__arr)
+node2=heapq.heappop(self.__arr)
+supernode=BinaryTree(None,node1.frequency+node2.frequency)
+supernode.right=node2
+supernode.left=node1
+heapq.heappush(self.__arr,supernode)
+return
+def __getBinHelper(self,root,bits):
+#base case
+if root==None:
+return
+if root.value is not None:
+# leaf node is reached
+self.__binary[root.value]=bits
+return
+#recursive case
+#moving left
+self.__getBinHelper(self,root.left,bits+'0')
+#moving right
+self.__getBinHelper(self,root.right,bits+'1')
+def __getBinaryCodeFromTree(self):
+root=heapq.heappop(self.__arr)
+self.__getBinHelper(self,root,'')
+def __encode(self,text):
+temp=''
+for ch in text:
+temp+=self.__binary[ch]
+return temp
+# now as the data will be stored in bits of 8 so we need to add some padding/bits of zeros towards end of the binary code so we need to add the padding and store the padding information
+def __getPaddedCode(self,encodedText):
+padding=8-len(encodedText)%8
+for i in range(padding):
+encodedText+='0'
+paddingInfo="{0:08b}".format()
+finalCode=paddingInfo+encodedText
+return finalCode
+def __convertToBytes(self,paddedText):
+temp=[]
+for i in range(0,len(paddedText),8):
+byteArr=paddedText[i:i+8]
+temp.append(byteArr)
+return temp
+def fileCompress(self):
+fileName,fileExtension=os.path.splitext(self.path)
+outputPath=fileName+'.bin'
+with open(self.path,'r+') as file,open(outputPath,'wb') as output:
+text=file.read()
+text=text.rstrip()
+freq=self.__getTextFrequency(text)
+build_heap=self.__buildHeap(freq)
+self.__buildBinaryTree()
+self.__getBinaryCodeFromTree()
+encoded_text=self.__encode(text)
+padded_text=self.__getPaddedCode(encoded_text)
+byte_arr=self.__convertToBytes(padded_text)
+#padding the encoded text
+byteData=bytes(byte_arr)
+output.write(byteData)
+print("compressed Successfuly")
+path=input('Enter the path')
+h=HuffmanCode(path)
+h.fileCompress()
+# To access the file and extract text out of the file
+# Create frequency of each text and store it in dictionary
+# Use min heap to get the top two elements with minimum frequency
+# Construct the binary tree using from headp
+# Contruct code from binary tree and store it in dictionary
+# Construct the encoded text
+# Return the binary file as an output
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+Section 1.10.32 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
+"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
+1914 translation by H. Rackham
+"But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?"
+Section 1.10.33 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
+"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat."
+1914 translation by H. Rackham
+"On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accep
